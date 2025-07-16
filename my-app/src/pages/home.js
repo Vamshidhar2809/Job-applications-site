@@ -43,27 +43,32 @@ function Home() {
     };
 
     try {
-      // 1. Send Email via EmailJS
-      const emailResponse = await emailjs.send(
+      // 1. Send email via EmailJS
+      const emailRes = await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
         process.env.REACT_APP_EMAILJS_USER_ID
       );
-      console.log('✅ Email sent:', emailResponse.status, emailResponse.text);
 
-      // 2. Save data to backend
-      const dbResponse = await axios.post('https://job-applications-site-bs7q.onrender.com/api/applicants', {
-        ...formData,
-        resume_link: resume ? resume.name : '',
-      });
-      console.log('✅ DB response:', dbResponse.data);
+      console.log('✅ Email sent:', emailRes.status, emailRes.text);
+
+      // 2. Send form to backend API
+      const dbRes = await axios.post(
+        'https://job-applications-site-bs7q.onrender.com/api/applicants',
+        {
+          ...formData,
+          resume_link: resume ? resume.name : '',
+        }
+      );
+
+      console.log('✅ DB saved:', dbRes.data);
 
       // 3. Show thank-you message
       setSubmittedName(formData.name);
       setShowMessage(true);
 
-      // 4. Reset form
+      // 4. Clear form
       setFormData({
         name: '',
         email: '',
@@ -79,9 +84,9 @@ function Home() {
       setTimeout(() => {
         setShowMessage(false);
         navigate('/');
-      }, 10000);
-    } catch (err) {
-      console.error('❌ Submission Error:', err.response?.data || err.message);
+      }, 5000);
+    } catch (error) {
+      console.error('❌ Submission failed:', error);
       alert('Submission failed. Please try again later.');
     }
   };
@@ -93,7 +98,6 @@ function Home() {
       transition={{ duration: 0.6 }}
       className="max-w-2xl mx-auto mt-8 p-4 sm:p-6 bg-white shadow-md rounded-lg"
     >
-      {/* Header Image */}
       <motion.img
         src="https://images.unsplash.com/photo-1596495577886-d920f1fb7238?auto=format&fit=crop&w=1350&q=80"
         alt="Job Opportunity"
@@ -112,7 +116,6 @@ function Home() {
         Welcome to the Job Opportunity
       </motion.h1>
 
-      {/* Thank You Message */}
       {showMessage && (
         <motion.div
           initial={{ y: -10, opacity: 0 }}
@@ -120,11 +123,10 @@ function Home() {
           transition={{ duration: 0.4 }}
           className="bg-green-100 text-green-800 p-4 mb-4 rounded text-center font-medium"
         >
-          Thanks <strong>{submittedName}</strong> for applying. Our team will review your details and contact you if your profile matches. You’ll be redirected shortly!
+          Thanks <strong>{submittedName}</strong> for applying! Redirecting you...
         </motion.div>
       )}
 
-      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ scale: 0.95, opacity: 0 }}
@@ -153,7 +155,6 @@ function Home() {
           </div>
         ))}
 
-        {/* Skills */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Skills:</label>
           <textarea
@@ -163,10 +164,9 @@ function Home() {
             rows="3"
             className="mt-1 p-2 w-full border rounded text-sm"
             placeholder="Eg: React, Node.js, SQL"
-          ></textarea>
+          />
         </div>
 
-        {/* Resume Upload */}
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">Upload Resume:</label>
           <input
