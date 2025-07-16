@@ -10,18 +10,15 @@ const Applicant = {
       organization,
       notice, // 'notice' comes from frontend
       skills,
-      resume_link = '' // optional fallback
+      resume_link, // <-- include this
     } = data;
 
     const result = await pool.query(
-      `INSERT INTO applicants 
-        (name, email, contact, qualification, organization, notice_period, skills, resume_link)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
+      `INSERT INTO applicants (name, email, contact, qualification, organization, notice, skills, resume_link)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [name, email, contact, qualification, organization, notice, skills, resume_link]
     );
 
-    console.log('✅ DB Inserted Record:', result.rows[0]);
     return result.rows[0];
   }
 };

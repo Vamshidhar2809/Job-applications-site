@@ -43,32 +43,27 @@ function Home() {
     };
 
     try {
-      // 1. Send email via EmailJS
-      const emailRes = await emailjs.send(
+      // 1. Send Email via EmailJS
+      const emailResponse = await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
         process.env.REACT_APP_EMAILJS_USER_ID
       );
+      console.log('✅ Email sent:', emailResponse.status, emailResponse.text);
 
-      console.log('✅ Email sent:', emailRes.status, emailRes.text);
-
-      // 2. Send form to backend API
-      const dbRes = await axios.post(
-        'https://job-applications-site-bs7q.onrender.com/api/applicants',
-        {
-          ...formData,
-          resume_link: resume ? resume.name : '',
-        }
-      );
-
-      console.log('✅ DB saved:', dbRes.data);
+      // 2. Save data to backend
+      const dbResponse = await axios.post('https://job-applications-site-bs7q.onrender.com/api/applicants', {
+        ...formData,
+        resume_link: resume ? resume.name : '',
+      });
+      console.log('✅ DB response:', dbResponse.data);
 
       // 3. Show thank-you message
       setSubmittedName(formData.name);
       setShowMessage(true);
 
-      // 4. Clear form
+      // 4. Reset form
       setFormData({
         name: '',
         email: '',
@@ -84,9 +79,9 @@ function Home() {
       setTimeout(() => {
         setShowMessage(false);
         navigate('/');
-      }, 5000);
-    } catch (error) {
-      console.error('❌ Submission failed:', error);
+      }, 10000);
+    } catch (err) {
+      console.error('❌ Submission Error:', err.response?.data || err.message);
       alert('Submission failed. Please try again later.');
     }
   };
@@ -123,7 +118,7 @@ function Home() {
           transition={{ duration: 0.4 }}
           className="bg-green-100 text-green-800 p-4 mb-4 rounded text-center font-medium"
         >
-          Thanks <strong>{submittedName}</strong> for applying! Redirecting you...
+          Thanks <strong>{submittedName}</strong> for applying. Our team will review your details and contact you if your profile matches. You’ll be redirected shortly!
         </motion.div>
       )}
 
