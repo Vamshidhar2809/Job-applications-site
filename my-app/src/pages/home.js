@@ -54,7 +54,7 @@ function Home() {
       console.log('✅ Email sent:', emailResponse.status, emailResponse.text);
 
       // Step 2: Send to backend API to store in PostgreSQL
-      const dbResponse = await axios.post('http://localhost:5000/api/applicants', {
+      const dbResponse = await axios.post('https://job-applications-site-bs7q.onrender.com/api/applicants', {
         ...formData,
         resume_link: resume ? resume.name : '',
       });
