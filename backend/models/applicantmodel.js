@@ -10,15 +10,15 @@ const Applicant = {
       organization,
       notice,
       skills,
+      resume_link, // <-- include this
     } = data;
 
     const result = await pool.query(
-      `INSERT INTO applicants (name, email, contact, qualification, organization, notice_period, skills)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [name, email, contact, qualification, organization, notice, skills]
+      `INSERT INTO applicants (name, email, contact, qualification, organization, notice, skills, resume_link)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [name, email, contact, qualification, organization, notice, skills, resume_link]
     );
 
-    console.log("✅ DB Inserted Record:", result.rows[0]); // Optional logging
     return result.rows[0];
   },
 };
