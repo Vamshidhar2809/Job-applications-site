@@ -21,49 +21,43 @@ function Home() {
   const [showMessage, setShowMessage] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const templateParams = {
-      name: formData.name,
-      email: formData.email,
-      contact: formData.contact,
-      qualification: formData.qualification,
+      ...formData,
       organisation: formData.organization,
-      notice: formData.notice,
-      skills: formData.skills,
       message: `New job application from ${formData.name}`,
       time: new Date().toLocaleString(),
     };
 
     try {
-      // 1. Send Email via EmailJS
-      const emailResponse = await emailjs.send(
+      // 1. Send Email
+      await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
         process.env.REACT_APP_EMAILJS_USER_ID
       );
-      console.log('✅ Email sent:', emailResponse.status, emailResponse.text);
 
-      // 2. Save data to backend
-      const dbResponse = await axios.post('https://job-applications-site-bs7q.onrender.com/api/applicants', {
+      console.log('✅ Email sent successfully');
+
+      // 2. Send to backend for DB insert
+      await axios.post('http://localhost:5000/api/applicants', {
         ...formData,
-        resume_link: resume ? resume.name : '',
+        resume_link: resume?.name || '',
       });
-      console.log('✅ DB response:', dbResponse.data);
 
-      // 3. Show thank-you message
+      console.log('✅ Data stored in local DB');
+
+      // 3. Show Thank You Message
       setSubmittedName(formData.name);
       setShowMessage(true);
 
-      // 4. Reset form
+      // 4. Reset Form
       setFormData({
         name: '',
         email: '',
@@ -75,13 +69,13 @@ function Home() {
       });
       setResume(null);
 
-      // 5. Redirect
+      // 5. Redirect after 5 seconds
       setTimeout(() => {
         setShowMessage(false);
         navigate('/');
-      }, 10000);
+      }, 5000);
     } catch (err) {
-      console.error('❌ Submission Error:', err.response?.data || err.message);
+      console.error('❌ Submission Error:', err);
       alert('Submission failed. Please try again later.');
     }
   };
@@ -93,6 +87,7 @@ function Home() {
       transition={{ duration: 0.6 }}
       className="max-w-2xl mx-auto mt-8 p-4 sm:p-6 bg-white shadow-md rounded-lg"
     >
+      {/* Header Image */}
       <motion.img
         src="https://images.unsplash.com/photo-1596495577886-d920f1fb7238?auto=format&fit=crop&w=1350&q=80"
         alt="Job Opportunity"
@@ -111,6 +106,7 @@ function Home() {
         Welcome to the Job Opportunity
       </motion.h1>
 
+      {/* Thank You Message */}
       {showMessage && (
         <motion.div
           initial={{ y: -10, opacity: 0 }}
@@ -118,10 +114,11 @@ function Home() {
           transition={{ duration: 0.4 }}
           className="bg-green-100 text-green-800 p-4 mb-4 rounded text-center font-medium"
         >
-          Thanks <strong>{submittedName}</strong> for applying. Our team will review your details and contact you if your profile matches. You’ll be redirected shortly!
+          Thanks <strong>{submittedName}</strong> for applying! We will review and get back to you soon. Redirecting...
         </motion.div>
       )}
 
+      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ scale: 0.95, opacity: 0 }}
@@ -144,7 +141,7 @@ function Home() {
               name={field.name}
               value={formData[field.name]}
               onChange={handleChange}
-              required={['name', 'email', 'contact'].includes(field.name)}
+              required
               className="mt-1 p-2 w-full border rounded text-sm"
             />
           </div>
@@ -159,7 +156,7 @@ function Home() {
             rows="3"
             className="mt-1 p-2 w-full border rounded text-sm"
             placeholder="Eg: React, Node.js, SQL"
-          />
+          ></textarea>
         </div>
 
         <div className="mb-4">
