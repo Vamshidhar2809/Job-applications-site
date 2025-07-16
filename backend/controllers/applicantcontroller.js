@@ -9,7 +9,7 @@ exports.createApplicant = async (req, res) => {
     console.log('✅ Controller: Applicant saved to DB');
     res.status(201).json(newApplicant);
   } catch (error) {
-    console.error('❌ Controller Error:', error.message);
+    console.error('❌ Controller Error:', error); // full error object
     res.status(500).json({ error: 'Failed to create applicant' });
   }
 };
