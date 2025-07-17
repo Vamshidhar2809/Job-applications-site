@@ -35,23 +35,21 @@ function Home() {
     };
 
     try {
-      // 1. Send Email
+      // 1. Send Email via EmailJS
       await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
         process.env.REACT_APP_EMAILJS_USER_ID
       );
+      console.log('✅ Email sent');
 
-      console.log('✅ Email sent successfully');
-
-      // 2. Send to backend for DB insert
-      await axios.post('http://localhost:5000/api/applicants', {
+      // 2. Send to Railway backend
+      await axios.post('https://job-applications-site-backend-production.up.railway.app/api/applicants', {
         ...formData,
         resume_link: resume?.name || '',
       });
-
-      console.log('✅ Data stored in local DB');
+      console.log('✅ Stored in DB');
 
       // 3. Show Thank You Message
       setSubmittedName(formData.name);
@@ -69,14 +67,14 @@ function Home() {
       });
       setResume(null);
 
-      // 5. Redirect after 5 seconds
+      // 5. Redirect
       setTimeout(() => {
         setShowMessage(false);
         navigate('/');
       }, 5000);
     } catch (err) {
-      console.error('❌ Submission Error:', err);
-      alert('Submission failed. Please try again later.');
+      console.error('❌ Error:', err);
+      alert('Something went wrong. Try again later.');
     }
   };
 
@@ -87,10 +85,9 @@ function Home() {
       transition={{ duration: 0.6 }}
       className="max-w-2xl mx-auto mt-8 p-4 sm:p-6 bg-white shadow-md rounded-lg"
     >
-      {/* Header Image */}
       <motion.img
         src="https://images.unsplash.com/photo-1596495577886-d920f1fb7238?auto=format&fit=crop&w=1350&q=80"
-        alt="Job Opportunity"
+        alt="Job"
         initial={{ x: -80, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -106,7 +103,6 @@ function Home() {
         Welcome to the Job Opportunity
       </motion.h1>
 
-      {/* Thank You Message */}
       {showMessage && (
         <motion.div
           initial={{ y: -10, opacity: 0 }}
@@ -118,7 +114,6 @@ function Home() {
         </motion.div>
       )}
 
-      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial={{ scale: 0.95, opacity: 0 }}
